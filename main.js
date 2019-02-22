@@ -86,9 +86,8 @@ casper.thenOpen(url, function() {
 });
 
 casper.then(function () {
-  var res = JSON.parse(this.getPageContent());
-  var reducedRes = res.products;
-  console.log(JSON.stringify(reducedRes));
+  var filteredRes = getFilteredProductDataObj(this.getPageContent());
+  console.log(JSON.stringify(filteredRes));
   this.exit();
 });
 
@@ -103,7 +102,16 @@ casper.run();
 /**
  * ********************************** UTIL FUNCTION *********************************
  */
-
+function getFilteredProductDataObj(responseStr) {
+  var obj = JSON.parse(responseStr);
+  var fitleredObj = obj.products.map(function(item) {
+    return {
+      name: item.name,
+      price: item.price.formatted_price
+    };
+  });
+  return fitleredObj;
+}
 
 
 
