@@ -12,10 +12,14 @@ async function run() {
   await page.goto('https://www.konzum.hr/klik/#!/offers', {"waitUntil" : "networkidle0"});
   console.log("goto");
 
-  const val = await page.$eval('.ime-proizvoda', (element) => {
-    return element.innerHTML
-  })
-  console.log(val);
+  const productNameList = await page.evaluate( () => 
+    Array.from(
+      document.querySelectorAll('.ime-proizvoda'), element => element.innerText 
+    )
+  );
+  productNameList.forEach(prod => {
+    console.log(prod);
+  });
   
   //browser.close();
   console.log("closed");
