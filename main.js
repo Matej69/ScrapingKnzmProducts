@@ -1,15 +1,6 @@
 const puppeteer = require('puppeteer');
 
 
-
-
-/**
- * ***************************** UTILS FUNCTIONS ******************************
- */
-
-
-
-
 async function run() {
   console.log("started");
   const browser = await puppeteer.launch({
@@ -24,16 +15,17 @@ async function run() {
 
   const productNameList = await page.evaluate( () => 
     Array.from(document.querySelectorAll('.inner-proizvod'), element => {
-      var lipe = element.querySelector(".decimalni-dio");
-      var kn = element.querySelector(".cijena");
-      kn.removeChild(lipe);
-      kn.removeChild(element.querySelector(".tekstualni-dio"));
+      var productName = element.querySelector(".ime-proizvoda");
+      var priceExtension = element.querySelector(".decimalni-dio");
+      var priceText = element.querySelector(".tekstualni-dio");
+      var priceBase = element.querySelector(".cijena");
+          priceBase.removeChild(priceExtension);
+          priceBase.removeChild(priceText);
       return { 
-        name: element.querySelector(".ime-proizvoda").innerText,
-        //price: ChildrenToRemove(element.querySelector(".cijena"),[".cijena span"]).innerText
-        //pricelp: element.querySelector(".cijena .decimalni-dio").innerText,
-        priceBase: kn.innerText,
-        priceExtension: lipe.innerText
+        name: productName.innerText,
+        priceBase: priceBase.innerText,
+        priceExtension: priceExtension.innerText,
+        priceText: priceText.innerText
       };      
     })
   );
