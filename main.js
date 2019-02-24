@@ -9,17 +9,35 @@ function WaitFor(x) {
 }
 
 async function run() {
-  console.log("started");
   const browser = await puppeteer.launch({
     headless: true
   });
-  console.log("lunched");
-  const page = await browser.newPage();
-  console.log("paged");
+  console.log("Browser lunched");
 
+  var page = await browser.newPage();
+  console.log("Page initialized");
+
+  page.on('response', async (response) => {
+    //console.log(response.url());
+  });
+
+  console.log("Request sent for https://www.konzum.hr/klik/#!/offers");
   await page.goto('https://www.konzum.hr/klik/#!/offers', {"waitUntil" : "networkidle0"});
-  console.log("goto");
 
+
+  try {
+    const tree = await page._client.send('Page.getResourceTree');
+    for (const resource of tree.frameTree.resources) {
+      console.log(resource);
+    }
+  } catch (e) {
+    console.log(e);
+  }
+
+  
+
+
+/*
   var isOnLastPage;
   do {
        // get all products on a page
@@ -58,9 +76,11 @@ async function run() {
     await WaitFor(5000);
   }
   while (!isOnLastPage);
+  */
   
   //browser.close();
   console.log("closed");
+  
 }
 
 run();
