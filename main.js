@@ -43,7 +43,7 @@ async function ExtractImageData(page, productNameList, imgID, fs) {
       productNameList[i].imgID = imgID.value++;
       const content = await GetImageContent(page, productNameList[i].imgSrc);
       const contentBuffer = Buffer.from(content, 'base64');
-      fs.writeFileSync(imgID.value + '.jpg', contentBuffer, 'base64');
+      fs.writeFileSync("./images/" + imgID.value + '.jpg', contentBuffer, 'base64');
     }
   }
   catch (e) {
