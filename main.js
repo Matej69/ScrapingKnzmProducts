@@ -91,7 +91,7 @@ function PrintScrapedData(productNameList) {
 /**
  * Main function
  */
-async function run() {
+async function main() {
   const browser = await puppeteer.launch({
     headless: true
   });
@@ -115,5 +115,4 @@ async function run() {
   
   console.log("###################################### ALL DATA SCRAPED: ");
 }
-
-run();
+main();
