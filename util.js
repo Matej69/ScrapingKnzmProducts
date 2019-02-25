@@ -1,15 +1,25 @@
-module.exports = {
 
-  WaitFor: function(x) { 
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve();
-      }, x);
-    });
-  },
+module.exports = { 
+  WaitFor, 
+  GetImageContent, 
+  NextPage, 
+  ExtractImageData, 
+  ExtractProductDataFromPage,
+  PrintScrapedData  
+};
 
 
-GetImageContent: async function(page, url) {
+
+function WaitFor(x) { 
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve();
+    }, x);
+  });
+}
+
+
+async function GetImageContent(page, url) {
   const assert = require('assert');
 
   const { content, base64Encoded } = await page._client.send(
@@ -18,12 +28,12 @@ GetImageContent: async function(page, url) {
   );
   assert.equal(base64Encoded, true);
   return content;
-},
+}
 
 /**
  * Tries to go to the next page and returns isOnLastPage info about current page(before switching).
  */
- NextPage: async function(page) {
+async function NextPage(page) {
   console.log("Trying to switch to next page...");
   return await page.evaluate( () => {
     var nextPageLi = document.querySelector('.pagination-next');
@@ -33,12 +43,12 @@ GetImageContent: async function(page, url) {
       nextPageA.click();
     return isOnLastPage;
   });
-},
+}
 
 /**
  * Save img to file and generate imgID for json
  */
-ExtractImageData: async function(page, productNameList, imgID, fs) {
+async function ExtractImageData(page, productNameList, imgID, fs) {
   try {
     for (let i = 0; i < productNameList.length; i++) {
       productNameList[i].imgID = imgID.value++;
@@ -51,12 +61,12 @@ ExtractImageData: async function(page, productNameList, imgID, fs) {
     console.log(e);
   }
   console.log("All image data extracted");
-},
+}
 
 /**
  * Get all products data from a current page
  */
-ExtractProductDataFromPage: async function(page) {
+async function ExtractProductDataFromPage(page) {
   return await page.evaluate( () => 
     Array.from(document.querySelectorAll('.inner-proizvod'), element => {
       var productName = element.querySelector(".ime-proizvoda");
@@ -76,15 +86,13 @@ ExtractProductDataFromPage: async function(page) {
       };
     })
   );
-},
+}
 
 /**
  * Print all scraped data to console
  */
-PrintScrapedData: function(productNameList) {
+function PrintScrapedData(productNameList) {
   productNameList.forEach(prod => {
     console.log(prod);
   });
-}
-
 }
