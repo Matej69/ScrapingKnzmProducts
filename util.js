@@ -1,9 +1,8 @@
-
 module.exports = { 
   WaitFor, 
-  GetImageContent, 
+  GetImageAsBase64, 
   NextPage, 
-  ExtractImageData, 
+  GetImageDataAsBase64, 
   ExtractProductDataFromPage,
   PrintScrapedData  
 };
@@ -19,7 +18,7 @@ function WaitFor(x) {
 }
 
 
-async function GetImageContent(page, url) {
+async function GetImageAsBase64(page, url) {
   const assert = require('assert');
 
   const { content, base64Encoded } = await page._client.send(
@@ -48,19 +47,21 @@ async function NextPage(page) {
 /**
  * Save img to file and generate imgID for json
  */
-async function ExtractImageData(page, productNameList, imgID, fs) {
+async function GetImageDataAsBase64(page, productNameList, imgID, fs) {
+  var imagesBase64 = [];
   try {
     for (let i = 0; i < productNameList.length; i++) {
       productNameList[i].imgID = imgID.value++;
-      const content = await this.GetImageContent(page, productNameList[i].imgSrc);
-      const contentBuffer = Buffer.from(content, 'base64');
-      fs.writeFileSync("./images/" + imgID.value + '.jpg', contentBuffer, 'base64');
+      const imgBase64 = await this.GetImageAsBase64(page, productNameList[i].imgSrc);
+      imagesBase64.push(imgBase64);
+      productNameList[i].imgBase64 = imgBase64;
     }
+    console.log("All image data extracted");
+    return imagesBase64;
   }
   catch (e) {
     console.log(e);
   }
-  console.log("All image data extracted");
 }
 
 /**
@@ -82,7 +83,8 @@ async function ExtractProductDataFromPage(page) {
         priceExtension: priceExtension.innerText,
         priceText: priceText.innerText,
         imgSrc: imgSrc,
-        imgID: ''
+        imgID: '',
+        imgBase64: ''
       };
     })
   );
