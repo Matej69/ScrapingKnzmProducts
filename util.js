@@ -1,7 +1,7 @@
 module.exports = { 
   WaitFor, 
   GetImageAsBase64, 
-  NextPage, 
+  GoToNextPage, 
   GetImageDataAsBase64, 
   ExtractProductDataFromPage,
   PrintScrapedData  
@@ -32,9 +32,9 @@ async function GetImageAsBase64(page, url) {
 /**
  * Tries to go to the next page and returns isOnLastPage info about current page(before switching).
  */
-async function NextPage(page) {
+async function GoToNextPage(page) {
   console.log("Trying to switch to next page...");
-  return await page.evaluate( () => {
+  var isOnLastPage = await page.evaluate( () => {
     var nextPageLi = document.querySelector('.pagination-next');
     var nextPageA = nextPageLi.querySelector('a');
     var isOnLastPage = nextPageLi.classList.contains('disabled');
@@ -42,22 +42,19 @@ async function NextPage(page) {
       nextPageA.click();
     return isOnLastPage;
   });
+  // Wait for some time to prevent angular router bug when url is fastly switched
+  if (!isOnLastPage)
+    await WaitFor(5000);
+  return isOnLastPage;
 }
 
 /**
  * Save img to file and generate imgID for json
  */
-async function GetImageDataAsBase64(page, productNameList, imgID, fs) {
-  var imagesBase64 = [];
+async function GetImageDataAsBase64(page, imgSrc) {
   try {
-    for (let i = 0; i < productNameList.length; i++) {
-      productNameList[i].imgID = imgID.value++;
-      const imgBase64 = await this.GetImageAsBase64(page, productNameList[i].imgSrc);
-      imagesBase64.push(imgBase64);
-      productNameList[i].imgBase64 = imgBase64;
-    }
-    console.log("All image data extracted");
-    return imagesBase64;
+    const imageBase64 = await GetImageAsBase64(page, imgSrc);
+    return imageBase64;
   }
   catch (e) {
     console.log(e);
@@ -68,7 +65,7 @@ async function GetImageDataAsBase64(page, productNameList, imgID, fs) {
  * Get all products data from a current page
  */
 async function ExtractProductDataFromPage(page) {
-  return await page.evaluate( () => 
+  var productsData = await page.evaluate( () => 
     Array.from(document.querySelectorAll('.inner-proizvod'), element => {
       var productName = element.querySelector(".ime-proizvoda");
       var priceExtension = element.querySelector(".decimalni-dio");
@@ -82,13 +79,31 @@ async function ExtractProductDataFromPage(page) {
         priceBase: priceBase.innerText,
         priceExtension: priceExtension.innerText,
         priceText: priceText.innerText,
-        imgSrc: imgSrc,
-        imgID: '',
+        //imgSrc: imgSrc,
         imgBase64: ''
       };
     })
   );
+
+  for(var i = 0; i < productsData.length; ++i)
+    productsData[i].imgBase64 = await GetImageDataAsBase64(page, productsData[i].imgSrc);
+  return productsData;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * ############################################## DEBUGING FUNCTIONS #################################################
+ */
 
 /**
  * Print all scraped data to console
