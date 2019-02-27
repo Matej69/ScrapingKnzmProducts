@@ -60,16 +60,6 @@ async function ExtractProductDataFromPage(page) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
 /**
  * ############################################## DEBUGING FUNCTIONS #################################################
  */
