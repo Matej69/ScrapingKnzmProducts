@@ -31,7 +31,7 @@ async function GoToNextPage(page) {
   });
   // Wait for some time to prevent angular router bug when url is fastly switched
   if (!isOnLastPage)
-    await WaitFor(5000);
+    await WaitFor(10000);
   return isOnLastPage;
 }
 
